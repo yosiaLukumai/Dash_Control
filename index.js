@@ -53,18 +53,11 @@ const client = mqtt.connect(brokerUrl);
 
 client.on('connect', function () {
   console.log('Connected to broker');
-  client.subscribe('notification/critical', function (err) {
+  client.subscribe('machine/log', function (err) {
     if (err) {
       console.error('Subscription error:', err);
     } else {
-      console.log('Subscribed to topic: notification/critical');
-    }
-  });
-  client.subscribe('notification', function (err) {
-    if (err) {
-      console.error('Subscription error:', err);
-    } else {
-      console.log('Subscribed to topic: notification');
+      console.log('Subscribed to topic: machine/log');
     }
   });
 });
