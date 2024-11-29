@@ -27,7 +27,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, machineID } = req.body;
 
     const user = await userModel.findOne({ email });
     if (!user) {
@@ -39,14 +39,21 @@ const login = async (req, res) => {
       return res.json(createOutput(false, "Incorrect Password"));
     }
 
-    const machineInUse = await machineModel.findOne({ controlledBy: user._id });
-    if (machineInUse) {
-      return res.json(
-        createOutput(false, "You are already controlling a machine")
-      );
+
+    const machineFound = await machineModel.findById(machineID);
+
+    if (machineFound) {
+      // check if it's in use
+      if (machineFound.controlledBy) {
+        return res.json(createOutput(false, machineFound.controlledBy === user.id ? "You are already controlling a machine" : "another person uses it"));
+      } else {
+        return res.json(createOutput(true, { user }));
+      }
+    } else {
+      return res.json(createOutput(false, "no such machine"));
     }
 
-    return res.json(createOutput(true, { user }));
+
   } catch (error) {
     console.error(error.message);
     return res.json(createOutput(false, error.message, true));
@@ -59,7 +66,7 @@ const logout = async (req, res) => {
 
     const machine = await machineModel.findOne({ controlledBy: userId });
     if (machine) {
-      machine.controlledBy = null; 
+      machine.controlledBy = null;
       await machine.save();
     }
 
@@ -69,8 +76,6 @@ const logout = async (req, res) => {
     return res.json(createOutput(false, error.message, true));
   }
 };
-
-
 
 
 
