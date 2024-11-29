@@ -13,6 +13,25 @@ const getMachines = async (req, res) => {
   }
 };
 
+const fetchMachineNames = async (req, res) => {
+  try {
+    // Retrieve all machines, selecting only the `name` and `_id` fields
+    const machines = await machineModel.find({}, { name: 1, _id: 1 });
+
+    // Check if there are any machines
+    if (machines.length === 0) {
+      return res.json(createOutput(false, "No machines found"));
+    }
+
+    // Return the machines
+    return res.json(createOutput(true, machines));
+  } catch (error) {
+    console.error(error.message);
+    return res.json(createOutput(false, error.message, true));
+  }
+};
+
+
 const controlMachine = async (req, res) => {
   try {
     const { machineId, userId } = req.body;
@@ -109,5 +128,6 @@ module.exports = {
     releaseMachine,
     controlMachine,
     getMachines,
-    registerMachine
+    registerMachine,
+    fetchMachineNames
 }

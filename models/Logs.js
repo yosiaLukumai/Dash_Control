@@ -10,8 +10,9 @@ const LogSchema = new mongoose.Schema({
     N: { type: Number, required: true },          // mg/kg
     P: { type: Number, required: true },          // mg/kg
     K: { type: Number, required: true },          // mg/kg
-  },
-  timestamp: true, // Time when the log was created
+  }
+}, {
+  timestamp: true
 });
 
 module.exports = mongoose.model('logs', LogSchema);

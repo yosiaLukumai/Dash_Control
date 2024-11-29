@@ -10,7 +10,7 @@ const register = async (req, res) => {
     const saved = await userModel.create({
       email,
       password,
-      username,
+      fullName: username,
     });
     if (saved) {
       return res.json(createOutput(true, saved));
