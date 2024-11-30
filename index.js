@@ -95,7 +95,7 @@ client.on('message', async function (topic, message) {
         })
         if (saved) {
           // let update the machine data 
-          io.emit("newdata", JSON.stringify({ ...machine, ...saved }))
+          io.emit("newdata", JSON.stringify(saved ))
         }
       } else {
         console.log(" No machine with such ID");
