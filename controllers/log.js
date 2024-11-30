@@ -2,6 +2,7 @@ const logModel = require("../models/Logs");
 const createOutput = require("../utils").createOutput;
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
+const path = require("path");
 
 
 
@@ -26,7 +27,7 @@ const getLastSixRecords = async (req, res) => {
         .find({ machine: machineId })
         .sort({ timestamp: -1 })
         .limit(6)
-        .select("data.temperature data.humidity timestamp")
+        .select("data.temperature data.humidity createdAt")
         .lean();
 
         // Transform the data to the desired format
@@ -182,7 +183,7 @@ const getLastSixRecords = async (req, res) => {
   
       logs.forEach((log, index) => {
         doc.fontSize(12).text(`Log #${index + 1}`);
-        doc.text(`  Timestamp: ${log.timestamp}`);
+        doc.text(`  Timestamp: ${log.createdAt.toLocaleString()}`);
         doc.text(`  Temperature: ${log.data.temperature} °C`);
         doc.text(`  Humidity: ${log.data.humidity} %`);
         doc.text(`  pH: ${log.data.pH}`);
@@ -223,6 +224,91 @@ const getLastSixRecords = async (req, res) => {
       return res.json(createOutput(false, error.message, true));
     }
   };
+
+
+  const exportAllDataPDFTable = async (req, res) => {
+    try {
+      const { machineId } = req.params;
+  
+      const logs = await logModel.find({ machine: machineId }).sort({ timestamp: -1 });
+  
+      if (logs.length === 0) {
+        return res.json(createOutput(false, "No log data found for this machine"));
+      }
+  
+      const doc = new PDFDocument();
+      const filePath = path.join(__dirname, `reports/machine_${machineId}_all_data.pdf`);
+  
+      if (!fs.existsSync(path.dirname(filePath))) {
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      }
+  
+      const writeStream = fs.createWriteStream(filePath);
+      doc.pipe(writeStream);
+  
+      // Title
+      doc.fontSize(20).text("Machine Data Report", { align: "center" });
+      doc.moveDown();
+  
+      // General Information
+      doc.fontSize(14).text(`Machine ID: ${machineId}`);
+      doc.text(`Total Logs: ${logs.length}`);
+      doc.text(`Generated At: ${new Date().toLocaleString()}`);
+      doc.moveDown();
+  
+      // Table Header
+      doc.fontSize(12).font("Helvetica-Bold");
+      doc.text("No.", 50, doc.y, { continued: true, width: 50 });
+      doc.text("Timestamp", 100, doc.y, { continued: true, width: 150 });
+      doc.text("Temp (°C)", 250, doc.y, { continued: true, width: 70 });
+      doc.text("Humidity (%)", 320, doc.y, { continued: true, width: 80 });
+      doc.text("pH", 400, doc.y, { continued: true, width: 50 });
+      doc.text("EC (µs/cm)", 450, doc.y, { continued: true, width: 70 });
+      doc.text("N (mg/kg)", 520, doc.y, { continued: true, width: 70 });
+      doc.text("P (mg/kg)", 590, doc.y, { continued: true, width: 70 });
+      doc.text("K (mg/kg)", 660);
+      doc.moveDown();
+  
+      // Table Rows
+      doc.font("Helvetica");
+      logs.forEach((log, index) => {
+        doc.text(`${index + 1}`, 50, doc.y, { continued: true, width: 50 });
+        doc.text(`${log.createdAt.toLocaleString()}`, 100, doc.y, { continued: true, width: 150 });
+        doc.text(`${log.data.temperature || "-"}`, 250, doc.y, { continued: true, width: 70 });
+        doc.text(`${log.data.humidity || "-"}`, 320, doc.y, { continued: true, width: 80 });
+        doc.text(`${log.data.pH || "-"}`, 400, doc.y, { continued: true, width: 50 });
+        doc.text(`${log.data.EC || "-"}`, 450, doc.y, { continued: true, width: 70 });
+        doc.text(`${log.data.N || "-"}`, 520, doc.y, { continued: true, width: 70 });
+        doc.text(`${log.data.P || "-"}`, 590, doc.y, { continued: true, width: 70 });
+        doc.text(`${log.data.K || "-"}`, 660);
+        doc.moveDown();
+      });
+  
+      doc.end();
+  
+      writeStream.on("finish", () => {
+        res.setHeader("Content-Type", "application/pdf");
+        res.download(filePath, `machine_${machineId}_all_data.pdf`, (err) => {
+          if (err) console.error("Error sending file:", err.message);
+  
+          try {
+            fs.unlinkSync(filePath);
+          } catch (unlinkError) {
+            console.error("Error deleting file:", unlinkError.message);
+          }
+        });
+      });
+  
+      writeStream.on("error", (err) => {
+        console.error("Error writing PDF:", err.message);
+        return res.json(createOutput(false, "Error generating PDF", true));
+      });
+    } catch (error) {
+      console.error(error.message);
+      return res.json(createOutput(false, error.message, true));
+    }
+  };
+  
   
 
 
@@ -231,5 +317,6 @@ module.exports = {
     getLogs,
     getLastSixRecords,
     exportAllDataPDF,
-    exportLastEntryPDF
+    exportLastEntryPDF,
+    exportAllDataPDFTable
 }
