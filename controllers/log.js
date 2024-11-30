@@ -25,7 +25,7 @@ const getLastSixRecords = async (req, res) => {
   
       let logs = await logModel
         .find({ machine: machineId })
-        .sort({ timestamp: -1 })
+        .sort({ createdAt: -1 })
         .limit(6)
         .select("data.temperature data.humidity createdAt")
         .lean();

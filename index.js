@@ -63,8 +63,8 @@ io.on("connect", (socket) => {
     console.log("client disconnected..");
   })
   socket.on("new/config", (data)=> {
-    let data = JSON.parse(data)
-    if(data.machineId) {
+    let dats = JSON.parse(data)
+    if(dats.machineId) {
       client.publish("new/config", data)
     }
   })
