@@ -65,7 +65,6 @@ client.on('connect', function () {
 // Handle incoming messages
 client.on('message', async function (topic, message) {
   // message is a buffer, so convert it to string
-  // checnk for the top
   let MyData = JSON.parse(message)
   if (topic == "machine/log") {
     try {
@@ -96,7 +95,6 @@ client.on('message', async function (topic, message) {
         })
         if (saved) {
           // let update the machine data 
-
           io.emit("newdata", JSON.stringify({ ...machine, ...saved }))
         }
       } else {
@@ -107,6 +105,10 @@ client.on('message', async function (topic, message) {
     }
   }
 });
+
+io.on("new/config", (data)=> {
+  console.log(data)
+})
 
 client.on('error', function (err) {
   console.error('Connection error:', err);

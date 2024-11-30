@@ -22,11 +22,19 @@ const getLastSixRecords = async (req, res) => {
     try {
       const { machineId } = req.params;
   
-      const logs = await logModel
+      let logs = await logModel
         .find({ machine: machineId })
         .sort({ timestamp: -1 })
         .limit(6)
-        .select("data.temperature data.humidity timestamp");
+        .select("data.temperature data.humidity timestamp")
+        .lean();
+
+        // Transform the data to the desired format
+        logs = logs.map(log => ({
+            time: new Date(log.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+            temperature: log.data.temperature,
+            humidity: log.data.humidity,
+        }));
   
       return res.json(createOutput(true, { logs }));
     } catch (error) {
