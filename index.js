@@ -41,15 +41,6 @@ const io = new Server(server, {
 
 
 
-io.on("connect", (socket) => {
-  console.log('connected')
-  socket.on("disconnect", () => {
-    console.log("client disconnected..");
-  })
-  socket.on("new/config", (data)=> {
-    console.log(data)
-  })
-})
 
 
 const client = mqtt.connect(brokerUrl);
@@ -64,6 +55,21 @@ client.on('connect', function () {
     }
   });
 });
+
+
+io.on("connect", (socket) => {
+  console.log('connected')
+  socket.on("disconnect", () => {
+    console.log("client disconnected..");
+  })
+  socket.on("new/config", (data)=> {
+    let data = JSON.parse(data)
+    if(data.machineId) {
+      client.publish("new/config", data)
+    }
+  })
+})
+
 
 // Handle incoming messages
 client.on('message', async function (topic, message) {
