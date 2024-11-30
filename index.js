@@ -69,7 +69,18 @@ client.on('message', async function (topic, message) {
   let MyData = JSON.parse(message)
   if (topic == "machine/log") {
     try {
-      let machine = await machineModal.findById(MyData.machineID)
+      let machine = await machineModal.findByIdAndUpdate(MyData.machineID, {
+        data: {
+          temperature: MyData.temp,
+          humidity: MyData.hum,
+          pH: MyData.ph,
+          EC: MyData.ec,
+          N: MyData.n,
+          P: MyData.p,
+          K: MyData.k
+        }
+      })
+      console.log("An update made is...", machine)
       if (machine) {
         const saved = await await logModal.create({
           machine: MyData?.machineID,
@@ -84,6 +95,8 @@ client.on('message', async function (topic, message) {
           }
         })
         if (saved) {
+          // let update the machine data 
+
           io.emit("newdata", JSON.stringify({ ...machine, ...saved }))
         }
       } else {
