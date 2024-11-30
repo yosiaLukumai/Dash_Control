@@ -90,10 +90,23 @@ const updateMachineData = async (req, res) => {
 
     return res.json(createOutput(true, { machine }));
   } catch (error) {
-    console.error(error.message);
     return res.json(createOutput(false, error.message, true));
   }
 };
+
+const getMachineData = async (req, res) => { 
+  try {
+    const { machineId } = req.params;
+    const machine = await machineModel.findById(machineId);
+    if (machine) {
+      return res.json(createOutput(true, machine));
+    }else {
+      return res.json(createOutput(false, "Machine not found"));
+    }
+  } catch (error) {
+    return res.json(createOutput(false, error.message, true));
+  }
+}
 
 
 const registerMachine = async (req, res) => {
@@ -129,5 +142,6 @@ module.exports = {
     controlMachine,
     getMachines,
     registerMachine,
-    fetchMachineNames
+    fetchMachineNames,
+    getMachineData
 }
