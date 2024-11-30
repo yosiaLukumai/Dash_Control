@@ -46,6 +46,9 @@ io.on("connect", (socket) => {
   socket.on("disconnect", () => {
     console.log("client disconnected..");
   })
+  socket.on("new/config", (data)=> {
+    console.log(data)
+  })
 })
 
 
@@ -106,9 +109,7 @@ client.on('message', async function (topic, message) {
   }
 });
 
-io.on("new/config", (data)=> {
-  console.log(data)
-})
+
 
 client.on('error', function (err) {
   console.error('Connection error:', err);
