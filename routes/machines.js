@@ -4,7 +4,7 @@ const machineController = require("../controllers/machines")
 const machineRoutes = (app) => {
     router.post("/register", machineController.registerMachine);
     router.get("/:machineId", machineController.getMachineData)
-    router.get("/names", machineController.fetchMachineNames)
+    router.get("/names/find", machineController.fetchMachineNames)
     return app.use("/machine", router)
 }
 

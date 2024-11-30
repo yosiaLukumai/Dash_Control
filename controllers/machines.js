@@ -15,11 +15,8 @@ const getMachines = async (req, res) => {
 
 const fetchMachineNames = async (req, res) => {
   try {
-    console.log("Hitted.....")
     // Retrieve all machines, selecting only the `name` and `_id` fields
     const machines = await machineModel.find({}, { name: 1, _id: 1 });
-    console.log(machines);
-    
 
     // Check if there are any machines
     if (machines.length === 0) {
