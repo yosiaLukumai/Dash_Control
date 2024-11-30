@@ -12,7 +12,7 @@ const LogSchema = new mongoose.Schema({
     K: { type: Number, required: true },          // mg/kg
   }
 }, {
-  timestamp: true
+  timestamps: true
 });
 
 module.exports = mongoose.model('logs', LogSchema);
