@@ -68,6 +68,14 @@ io.on("connect", (socket) => {
       client.publish("new/config", data)
     }
   })
+  // machine controls
+  socket.on("new/config/machine",  (data)=> {
+    let dats = JSON.parse(data)
+    if(dats.machine) {
+      client.publish("new/config/machine", data)
+    }
+  })
+
 })
 
 
@@ -112,6 +120,10 @@ client.on('message', async function (topic, message) {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  if(topic == "new/config/machine") {
+    io.emit("new/config/machine", message)
   }
 });
 
