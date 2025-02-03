@@ -13,7 +13,8 @@ require("dotenv").config();
 
 dbConfig.connectDb();
 const mqtt = require('mqtt');
-const brokerUrl = 'mqtt://143.198.62.200:1883';
+const brokerUrl = 'mqtt://45.79.206.183:1883';
+
 
 
 // limiting all the acces that comes from other hosting
@@ -54,6 +55,13 @@ client.on('connect', function () {
       console.log('Subscribed to topic: machine/log');
     }
   });
+  client.subscribe("new/config/from/machine", function (err) {
+    if (err) {
+      console.error('Subscription error:', err);
+    } else {
+      console.log('Subscribed to topic: machine/config/from/machine');
+    }
+  })
 });
 
 
@@ -98,7 +106,7 @@ client.on('message', async function (topic, message) {
       })
       console.log("An update made is...", machine)
       if (machine) {
-        const saved = await await logModal.create({
+        const saved = await logModal.create({
           machine: MyData?.machineID,
           data: {
             temperature: MyData.temp,
@@ -122,7 +130,12 @@ client.on('message', async function (topic, message) {
     }
   }
 
-  if(topic == "new/config/machine") {
+  if(topic == "new/config/from/machine") {
+
+    // sprinkler: boolean;
+    // motor: boolean;
+    // pump: boolean;
+    // machine: string;
     io.emit("new/config/machine", message)
   }
 });
