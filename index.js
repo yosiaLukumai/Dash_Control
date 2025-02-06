@@ -13,6 +13,7 @@ require("dotenv").config();
 
 dbConfig.connectDb();
 const mqtt = require('mqtt');
+const e = require("express");
 const brokerUrl = 'mqtt://45.79.206.183:1883';
 
 
@@ -70,10 +71,25 @@ io.on("connect", (socket) => {
   socket.on("disconnect", () => {
     console.log("client disconnected..");
   })
-  socket.on("new/config", (data)=> {
+  socket.on("new/config", async(data)=> {
     let dats = JSON.parse(data)
+    
     if(dats.machineId) {
-      client.publish("new/config", data)
+      // save the data to the database
+      let machineUpdated = await machineModal.findByIdAndUpdate(
+        dats.machineId,
+        { 
+            $set: { 
+                "data.setedHumidity": dats.humidity,
+                "data.setedTemperature": dats.temperature
+            } 
+        },
+        { new: true } // Returns the updated document
+    );
+      
+      if(machineUpdated) {
+        client.publish("new/config", data)
+      }
     }
   })
   // machine controls

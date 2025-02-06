@@ -9,7 +9,9 @@ const MachineSchema = new mongoose.Schema({
     EC: { type: Number, default: 0 },         // μS/cm
     N: { type: Number, default: 0 },          // mg/kg
     P: { type: Number, default: 0 },          // mg/kg
-    K: { type: Number, default: 0 },          // mg/kg
+    K: { type: Number, default: 0 },   
+    setedHumidity: { type: Number, default: 0 },    // %
+    setedTemperature: { type: Number, default: 0 }, // °C
   },
   controlledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: null }, 
 }, { timestamps: true }); 
