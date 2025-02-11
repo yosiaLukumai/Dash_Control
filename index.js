@@ -14,6 +14,7 @@ require("dotenv").config();
 dbConfig.connectDb();
 const mqtt = require('mqtt');
 const e = require("express");
+const { set } = require("mongoose");
 const brokerUrl = 'mqtt://45.79.206.183:1883';
 
 
@@ -117,7 +118,9 @@ client.on('message', async function (topic, message) {
           EC: MyData.ec,
           N: MyData.n,
           P: MyData.p,
-          K: MyData.k
+          K: MyData.k,
+          setedHumidity: MyData.setedHumidity,
+          setedTemperature: MyData.setedTemperature,
         }
       })
       console.log("An update made is...", machine)
@@ -131,7 +134,9 @@ client.on('message', async function (topic, message) {
             EC: MyData.ec,
             N: MyData.n,
             P: MyData.p,
-            K: MyData.k
+            K: MyData.k,
+            setedHumidity: MyData.setedHumidity,
+            setedTemperature: MyData.setedTemperature,
           }
         })
         if (saved) {
@@ -152,6 +157,8 @@ client.on('message', async function (topic, message) {
     // motor: boolean;
     // pump: boolean;
     // machine: string;
+    // save this into the database and emit changes to the UI
+
     io.emit("new/config/machine", message)
   }
 });
