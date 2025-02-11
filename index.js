@@ -135,8 +135,8 @@ client.on('message', async function (topic, message) {
             N: MyData.n,
             P: MyData.p,
             K: MyData.k,
-            setedHumidity: MyData.setedHumidity,
-            setedTemperature: MyData.setedTemperature,
+            setedHumidity: machine.data.setedHumidity,
+            setedTemperature: machine.data.setedTemperature,
           }
         })
         if (saved) {
