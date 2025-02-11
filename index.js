@@ -153,6 +153,8 @@ client.on('message', async function (topic, message) {
 
   if(topic == "new/config/from/machine") {
 
+    console.log(message);
+    
     // sprinkler: boolean;
     // motor: boolean;
     // pump: boolean;
